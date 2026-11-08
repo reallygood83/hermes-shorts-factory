@@ -24,7 +24,8 @@ hermes:
 - 학생이나 개인 정보를 넣지 않는다.
 - 대본 승인, 유료 음성 승인, 게시 승인은 서로 대체되지 않는다.
 - 승인된 provider, model, voice_id, language가 바뀌면 다시 승인받는다. 실패했다고 다른 음성으로 넘기지 않는다.
-- 기본 음성은 xAI `grok-tts` (`POST https://api.x.ai/v1/tts`, 언어 `ko`, 공개 보이스 `eve`)다. `XAI_API_KEY`가 있고 두 승인과 `SHORTS_FACTORY_ALLOW_PAID_TTS=1`이 있을 때만 호출한다.
+- 기본 내레이션은 xAI `grok-tts`다. 온보딩에서 Gemini를 고르면 `gemini-3.8-flash-tts`만 쓰고, 실패해도 xAI로 바꾸지 않는다. 효과음은 Gemini로 만들지 않고 로컬 원본 톤만 쓴다.
+- Desktop이 `storage_unavailable`이면 `python3 scripts/repair_chat.py`로 기본 Hermes 대화 모델을 쓸지 묻는다. 음성 모델을 채팅 모델로 넣지 않는다.
 - Claude와 Codex에는 음성 API가 없다. ElevenLabs는 쓰지 않는다. OpenAI `gpt-4o-mini-tts`는 프로젝트에 명시된 경우에만 쓴다.
 - 오프라인 톤은 프로젝트가 `offline`일 때만 쓴다. xAI 실패의 대체재가 아니다.
 - 게시는 로컬 묶음 파일만 만든다. 업로드하지 않는다.

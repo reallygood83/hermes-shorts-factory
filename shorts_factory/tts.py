@@ -53,6 +53,21 @@ OPENAI_MODELS = frozenset({"gpt-4o-mini-tts", "gpt-4o-mini-tts-2025-12-15"})
 OPENAI_DEFAULT_MODEL = "gpt-4o-mini-tts"
 PAID_FLAG = "SHORTS_FACTORY_ALLOW_PAID_TTS"
 DEFAULT_XAI_VOICE = "eve"
+# Speech models. gemini-3.8-flash-tts lists Korean in Google's TTS language table.
+# gemini-2.5-flash-preview-tts is Hermes 0.23's built-in default. Chat models are not in this set.
+GEMINI_TTS_DEFAULT = "gemini-3.8-flash-tts"
+GEMINI_TTS_VOICE = "Kore"
+GEMINI_TTS_MODELS = frozenset(
+    {
+        "gemini-3.8-flash-tts",
+        "gemini-3.8-flash-lite-tts",
+        "gemini-2.5-flash-preview-tts",
+        "gemini-3.1-flash-tts-preview",
+    }
+)
+GEMINI_TTS_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+# Hermes provider gemini catalog index 0. A chat model, not a TTS model.
+GEMINI_CHAT_MODEL = "gemini-3.8-flash"
 
 
 class SpeechError(Exception):
@@ -86,6 +101,14 @@ def resolve_selection(project_tts: dict[str, Any], env: dict[str, str] | None = 
     elif provider == "openai":
         model = str(project_tts.get("model") or OPENAI_DEFAULT_MODEL)
         voice = str(project_tts.get("voice_id") or source.get("SHORTS_FACTORY_OPENAI_VOICE") or "alloy")
+        language = str(project_tts.get("language") or "ko")
+    elif provider == "gemini":
+        model = str(project_tts.get("model") or GEMINI_TTS_DEFAULT)
+        voice = str(
+            project_tts.get("voice_id")
+            or source.get("SHORTS_FACTORY_GEMINI_VOICE")
+            or GEMINI_TTS_VOICE
+        )
         language = str(project_tts.get("language") or "ko")
     elif provider == "offline":
         model = str(project_tts.get("model") or "offline-placeholder")
@@ -136,8 +159,11 @@ class UrlLibTransport:
 
 def redacted_call(url: str, headers: dict[str, str], body: dict[str, Any]) -> dict[str, Any]:
     hidden = dict(headers)
-    if "Authorization" in hidden:
-        hidden["Authorization"] = "Bearer [redacted]"
+    for name in list(hidden):
+        if name.lower() == "authorization":
+            hidden[name] = "Bearer [redacted]"
+        elif name.lower() == "x-goog-api-key":
+            hidden[name] = "[redacted]"
     return {"url": url, "headers": hidden, "body": body}
 
 
@@ -316,6 +342,11 @@ _UNSUPPORTED = {
 def adapter_for(provider: str, transport: Transport | None = None) -> Any:
     if provider == "xai":
         return XaiAdapter(transport)
+    if provider == "gemini":
+        # Local import: GeminiAdapter imports speech helpers from this module.
+        from shorts_factory.gemini_tts import GeminiAdapter
+
+        return GeminiAdapter(transport)
     if provider == "openai":
         return OpenAIAdapter(transport)
     if provider == "offline":

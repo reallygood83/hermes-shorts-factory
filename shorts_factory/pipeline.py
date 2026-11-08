@@ -176,6 +176,9 @@ def narrate(directory: Path) -> dict[str, Any]:
         result = adapter.synthesize(spoken, selection, store_for(directory), text, mp3)
         kind = "provider-audio"
         wav_path = mp3
+    elif selection.provider == "gemini":
+        result = adapter.synthesize(spoken, selection, store_for(directory), text, wav_path)
+        kind = "provider-audio"
     else:
         result = adapter.synthesize(spoken, selection, store_for(directory), text, wav_path)
         kind = "blocked"
@@ -224,9 +227,9 @@ def render(directory: Path) -> dict[str, Any]:
             + "\n",
             encoding="utf-8",
         )
-    elif selection.provider in {"xai", "openai"}:
+    elif selection.provider in {"xai", "openai", "gemini"}:
         store_for(directory).assert_paid(selection)
-        narration = output / "narration.mp3"
+        narration = output / ("narration.wav" if selection.provider == "gemini" else "narration.mp3")
         if not narration.is_file():
             raise ProjectError("paid narration file is missing; run narrate after both approvals")
         mix_note = "approved provider audio mixed into the mp4"
