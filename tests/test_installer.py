@@ -150,6 +150,51 @@ class InstallerTests(unittest.TestCase):
         self.assertNotIn("xai-should-not-appear-in-argv", logged)
         self.assertEqual((self.home / "SOUL.md").read_text(encoding="utf-8"), "PRIMARY SOUL\n")
 
+    def test_second_hermes_apply_uses_profile_update(self) -> None:
+        bindir = Path(self.directory.name) / "bin-update"
+        bindir.mkdir()
+        log = Path(self.directory.name) / "hermes-update.log"
+        stub = bindir / "hermes"
+        stub.write_text(
+            "#!/bin/sh\n"
+            f"printf '%s\\n' \"$@\" >> {log}\n"
+            "printf '\\n---\\n' >> " + f"{log}\n"
+            "if [ \"$1\" = profile ] && [ \"$2\" = install ]; then\n"
+            "  mkdir -p \"$HERMES_HOME/profiles/shorts-factory\"\n"
+            "  printf 'name: shorts-factory\\n' > \"$HERMES_HOME/profiles/shorts-factory/distribution.yaml\"\n"
+            "fi\n"
+            "exit 0\n",
+            encoding="utf-8",
+        )
+        stub.chmod(stub.stat().st_mode | stat.S_IEXEC)
+        env = os.environ.copy()
+        env["PATH"] = str(bindir) + os.pathsep + env.get("PATH", "")
+        for _ in range(2):
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "shorts_factory.installer",
+                    "--apply",
+                    "--method",
+                    "hermes",
+                    "--hermes-home",
+                    str(self.home),
+                ],
+                cwd=repo_root(),
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr + completed.stdout)
+        logged = log.read_text(encoding="utf-8")
+        self.assertIn("install", logged)
+        self.assertIn("update", logged)
+        self.assertIn("-y", logged)
+        self.assertNotIn("--force-config", logged)
+        self.assertEqual((self.home / "SOUL.md").read_text(encoding="utf-8"), "PRIMARY SOUL\n")
+
 
 if __name__ == "__main__":
     unittest.main()

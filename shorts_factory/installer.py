@@ -7,9 +7,10 @@ command:
 
     hermes profile install <checkout> --name shorts-factory --alias -y
 
-Re-runs update distribution-owned files in place. `config.yaml` is kept
-after the first install unless `--force-config` is set, matching
-`hermes profile update`.
+A second `--apply` against an existing shorts-factory profile runs the
+documented `hermes profile update shorts-factory -y`. `config.yaml` is kept
+unless `--force-config` is set. Without the `hermes` executable, `--method file`
+copies the same owned files.
 """
 
 from __future__ import annotations
@@ -74,6 +75,13 @@ def hermes_install_argv(source: Path, name: str = PROFILE_NAME) -> list[str]:
         "--alias",
         "-y",
     ]
+
+
+def hermes_update_argv(name: str = PROFILE_NAME, force_config: bool = False) -> list[str]:
+    argv = ["hermes", "profile", "update", name, "-y"]
+    if force_config:
+        argv.append("--force-config")
+    return argv
 
 
 def _read(path: Path) -> bytes | None:
@@ -236,20 +244,23 @@ def _hermes_available() -> bool:
     return shutil.which("hermes") is not None
 
 
-def apply_hermes_cli(source: Path, hermes_home: Path, report: InstallReport) -> None:
+def apply_hermes_cli(
+    source: Path,
+    hermes_home: Path,
+    report: InstallReport,
+    force_config: bool,
+) -> None:
     profile = _assert_isolated(hermes_home, source)
     conflict = profile_conflict(hermes_home, source)
     if conflict:
         raise InstallError(conflict)
-    if _distribution_name(profile) == PROFILE_NAME:
-        raise InstallError(
-            "shorts-factory is already installed. Re-run with --method file to sync owned files, "
-            "or run the documented updater yourself: hermes profile update shorts-factory"
-        )
     if not _hermes_available():
         raise InstallError("hermes executable not found on PATH")
-    argv = hermes_install_argv(source)
-    report.say("running documented Hermes installer: " + " ".join(argv))
+    if _distribution_name(profile) == PROFILE_NAME:
+        argv = hermes_update_argv(force_config=force_config)
+    else:
+        argv = hermes_install_argv(source)
+    report.say("running documented Hermes command: " + " ".join(argv))
     completed = subprocess.run(
         argv,
         cwd=source,
@@ -262,9 +273,9 @@ def apply_hermes_cli(source: Path, hermes_home: Path, report: InstallReport) -> 
         report.say(completed.stdout.rstrip())
     if completed.returncode != 0:
         detail = (completed.stderr or "").strip()
-        raise InstallError(f"hermes profile install exited {completed.returncode}: {detail}")
+        raise InstallError(f"{' '.join(argv)} exited {completed.returncode}: {detail}")
     report.say("open it with: hermes -p shorts-factory chat")
-    report.say("or, when --alias succeeded: shorts-factory chat")
+    report.say("alias command is created only by the first install: hermes profile install <repo> --name shorts-factory --alias -y")
 
 
 def plan_lines(source: Path, hermes_home: Path, method: str) -> list[str]:
@@ -279,7 +290,10 @@ def plan_lines(source: Path, hermes_home: Path, method: str) -> list[str]:
         "no dependency install, no network, no TTS call, no Desktop database write",
     ]
     if method == "hermes":
-        lines.append("would run: " + " ".join(hermes_install_argv(source)))
+        if _distribution_name(profile) == PROFILE_NAME:
+            lines.append("would run: " + " ".join(hermes_update_argv()))
+        else:
+            lines.append("would run: " + " ".join(hermes_install_argv(source)))
     else:
         lines.append("would copy: " + ", ".join(OWNED_FILES + OWNED_DIRS))
         lines.append("would write .env.example without secret values")
@@ -300,11 +314,7 @@ def run_install(
         raise InstallError(f"unknown method {method}")
     chosen = method
     if method == "auto":
-        profile = hermes_home / "profiles" / PROFILE_NAME
-        if _hermes_available() and _distribution_name(profile) != PROFILE_NAME:
-            chosen = "hermes"
-        else:
-            chosen = "file"
+        chosen = "hermes" if _hermes_available() else "file"
     report = InstallReport("apply" if apply else "dry-run", chosen, hermes_home / "profiles" / PROFILE_NAME)
     for line in plan_lines(source, hermes_home, chosen):
         report.say(line)
@@ -317,7 +327,7 @@ def run_install(
         report.say("dry-run only; no files written")
         return report
     if chosen == "hermes":
-        apply_hermes_cli(source, hermes_home, report)
+        apply_hermes_cli(source, hermes_home, report, force_config)
         return report
     apply_file_layout(source, hermes_home, force_config, report)
     return report

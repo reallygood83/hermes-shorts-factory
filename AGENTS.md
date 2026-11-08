@@ -22,7 +22,7 @@ python3 scripts/install_profile.py --apply
 hermes profile install <이 체크아웃> --name shorts-factory --alias -y
 ```
 
-5. 적용 뒤 사용자에게 여는 방법을 알린다.
+5. 같은 명령을 한 번 더 실행하면 공식 CLI는 `hermes profile update shorts-factory -y`로 갱신한다. 성공은 `hermes profile list`에 `shorts-factory`가 있고 ◆default가 기본 프로필에 남는 것이다. Desktop 봇 칸이 생겼다고 말하지 않는다. `chat -c "Bot Chat" --create-if-missing`은 채팅 모델이 없으면 Hermes 0.23.0에서 실패한다. 적용 뒤 사용자에게 여는 방법을 알린다.
 
 ```text
 hermes -p shorts-factory chat

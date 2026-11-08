@@ -18,9 +18,11 @@ python3 scripts/install_profile.py --apply
 hermes -p shorts-factory chat
 ```
 
-비공개 저장소다. Hermes가 돌아가는 컴퓨터에 GitHub 인증이 이미 있어야 한다. SSH 키, `gh auth`, 또는 자격 증명 헬퍼 중 하나면 된다. 인증이 없으면 clone이 실패하고, 설치기는 그 실패를 키 입력으로 우회하지 않는다.
+비공개 저장소다. Hermes가 돌아가는 컴퓨터에 이 저장소를 clone할 git 인증이 이미 있어야 한다. SSH 키, `gh auth`, 또는 자격 증명 헬퍼 중 하나면 된다. 인증이 없으면 clone이 실패하고, 설치기는 토큰을 묻지 않는다.
 
-직접 설치할 때는 체크아웃 안에서 같은 두 명령을 쓴다. `hermes`가 PATH에 있고 프로필이 아직 없으면 적용 단계가 아래 공식 명령을 호출한다. 그 명령이 실패하면 `python3 scripts/install_profile.py --apply --method file`로 같은 소유 파일만 복사한다.
+적용이 성공하면 `hermes profile list`에 `shorts-factory` 프로필이 따로 생긴다. 기본 프로필의 별표(◆default)는 그대로다. 이 명령은 Desktop 봇 로스터의 칸, 아바타, canonical Bot Chat을 만들지 않는다. Hermes 0.23.0에서 `chat -c "Bot Chat" --create-if-missing`은 프로필에 채팅 모델이 없으면 게이트웨이가 `invalid policy`로 거절한다. 모델은 `hermes -p shorts-factory model`로 고른다.
+
+직접 설치할 때는 체크아웃 안에서 같은 두 명령을 쓴다. `hermes`가 PATH에 있으면 처음 적용은 아래 명령을 실행하고, 같은 프로필이 이미 있으면 `hermes profile update shorts-factory -y`를 다시 실행한다. `hermes`가 없으면 `python3 scripts/install_profile.py --apply --method file`이 같은 소유 파일만 복사한다.
 
 ```text
 hermes profile install <체크아웃 경로> --name shorts-factory --alias -y
