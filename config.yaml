@@ -1,0 +1,22 @@
+# Chat model is intentionally unset.
+# Pick one inside this profile only:
+#   hermes -p shorts-factory model
+# Do not copy the primary profile's config into this file.
+#
+# Speech uses Hermes's documented xAI TTS provider.
+# https://hermes-agent.nousresearch.com/docs/user-guide/features/tts
+# Product: grok-tts. HTTP API: POST https://api.x.ai/v1/tts
+# The request body has no chat-model field. voice_id eve is a public built-in.
+# Replace voice_id locally with a console voice if you want; do not commit it.
+# auto_speech_tags stays false so Hermes does not spend an extra rewrite call.
+tts:
+  provider: xai
+  xai:
+    voice_id: eve
+    language: ko
+    speed: 1.0
+    auto_speech_tags: false
+    text_normalization: true
+    optimize_streaming_latency: 0
+    sample_rate: 24000
+    bit_rate: 128000

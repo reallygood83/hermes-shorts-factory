@@ -1,0 +1,21 @@
+name: shorts-factory
+version: 1.0.0
+description: "한국어 쇼츠 연출 프로필. 기본 Hermes 페르소나와 분리되고, 대본·유료 TTS·게시 승인이 따로 있다."
+hermes_requires: ">=0.12.0"
+author: "shorts-factory maintainers"
+license: "MIT"
+env_requires:
+  - name: XAI_API_KEY
+    description: "xAI API key for Grok TTS POST https://api.x.ai/v1/tts. SuperGrok, Codex, and Claude chat logins do not authorize this call. Leave unset until a paid narration is approved."
+    required: false
+    default: ""
+  - name: SHORTS_FACTORY_XAI_VOICE_ID
+    description: "Optional. Used only when a project omits tts.voice_id. Public default is eve. Do not commit a custom voice id."
+    required: false
+    default: ""
+distribution_owned:
+  - SOUL.md
+  - config.yaml
+  - profile.yaml
+  - skills/
+  - distribution.yaml
