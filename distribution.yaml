@@ -1,5 +1,5 @@
 name: shorts-factory
-version: 1.0.0
+version: 1.1.0
 description: "한국어 쇼츠 연출 프로필. 기본 Hermes 페르소나와 분리되고, 대본·유료 TTS·게시 승인이 따로 있다."
 hermes_requires: ">=0.12.0"
 author: "shorts-factory maintainers"
@@ -7,6 +7,10 @@ license: "MIT"
 env_requires:
   - name: XAI_API_KEY
     description: "xAI API key for Grok TTS POST https://api.x.ai/v1/tts. SuperGrok, Codex, and Claude chat logins do not authorize this call. Leave unset until a paid narration is approved."
+    required: false
+    default: ""
+  - name: GEMINI_API_KEY
+    description: "Optional Gemini API key for speech only. Not a chat credential. Leave unset until Gemini narration is chosen and paid use is approved."
     required: false
     default: ""
   - name: SHORTS_FACTORY_XAI_VOICE_ID

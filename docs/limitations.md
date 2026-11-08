@@ -36,9 +36,11 @@ hermes -p shorts-factory chat --cli -c "Bot Chat" --create-if-missing
 No session found matching 'Bot Chat' and a new titled session could not be created.
 ```
 
-게이트웨이 로그는 `invalid policy` (`gateway/session_policy.py`의 `policy.model`이 비어 있음)를 `storage_unavailable`로 감싼다. 메시지 수와 API 호출 수는 0이었다. 실험으로 임시 홈의 모델 문자열만 채우면 제목 `Bot Chat` 세션이 생기고, API 키 없음으로 setup에서 종료했다. 그 가짜 모델은 배포하지 않는다. 그래서 설치기는 이 명령을 실행하지 않는다.
+게이트웨이 로그는 `invalid policy` (`gateway/session_policy.py`의 `policy.model`이 비어 있음)를 `storage_unavailable`로 감싼다. Desktop 플러그인 `notifyBotOpenFailure`는 그 문자열을 `Could not open Shorts Factory’s chat`의 detail로 보여 주고, 버튼은 항상 Open Gateways다. 빈 모델이 유일한 sqlite 고장은 아니다. 모델이 이미 있는데도 같은 코드가 나오면 `hermes gateway ensure` 이후에도 남는지 본다.
 
-Desktop 로스터는 이 CLI로 확인하지 못했다. 로스터의 봇 칸은 Desktop이 `ui_meta.hermes-bots`와 canonical Bot Chat을 쓸 때 생긴다.
+수리는 `python3 scripts/repair_chat.py`다. 질문은 기본 Hermes `config.yaml`의 대화 모델을 쓸지, 다른 대화 모델 이름을 입력할지다. `api_key`와 `.env`, `auth.json`은 기본 프로필에서 복사하지 않는다. 세션 DB는 지우지 않는다. 이 클라우드 VM은 사용자 Mac의 Desktop을 열 수 없으므로, 수리 명령은 그 컴퓨터에서 실행해야 한다.
+
+Desktop 로스터의 아바타와 `ui_meta.hermes-bots`는 이 수리가 만들지 않는다.
 
 배포 `config.yaml`에는 `_config_version`을 넣지 않았다. 공식 예제는 Hermes가 그 키를 관리하므로 다른 설정으로 복사하지 말라고 한다. 0.23.0은 이 파일에 대해 버전 12 이전이라는 마이그레이션 경고를 낸 뒤에도 프로필 설치 자체는 끝냈다.
 

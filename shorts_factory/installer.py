@@ -237,6 +237,7 @@ def apply_file_layout(
         _populate(source, profile, force_config, report, first_install=False)
     report.say(f"profile ready at {profile}")
     report.say("open it with: hermes -p shorts-factory chat")
+    report.say("Desktop storage_unavailable: python3 scripts/repair_chat.py")
     report.say("alias command is created only by: hermes profile install <repo> --name shorts-factory --alias -y")
 
 
@@ -275,6 +276,7 @@ def apply_hermes_cli(
         detail = (completed.stderr or "").strip()
         raise InstallError(f"{' '.join(argv)} exited {completed.returncode}: {detail}")
     report.say("open it with: hermes -p shorts-factory chat")
+    report.say("Desktop storage_unavailable: python3 scripts/repair_chat.py")
     report.say("alias command is created only by the first install: hermes profile install <repo> --name shorts-factory --alias -y")
 
 

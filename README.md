@@ -4,6 +4,21 @@
 
 음성은 ElevenLabs가 아니다. 기본값은 xAI Grok TTS(`grok-tts`, `POST https://api.x.ai/v1/tts`)다. Claude와 Codex에는 음성 API가 없고, 채팅 로그인으로 음성을 호출하지 않는다. 비교는 [docs/tts.md](docs/tts.md)에 있다.
 
+## 채팅이 storage_unavailable일 때
+
+Desktop의 `Could not open Shorts Factory’s chat` / `storage_unavailable`는 이 프로필의 채팅 모델이 비어 있을 때 Hermes 0.23.0이 세션을 거절하는 오류입니다. 이 컴퓨터의 Desktop은 여기서 열 수 없습니다. 사용자 컴퓨터에서 아래를 실행합니다. 기본 프로필의 비밀키는 복사하지 않고, 대화 DB도 지우지 않습니다.
+
+```text
+shorts-factory 채팅이 storage_unavailable이다. 저장소를 최신으로 받은 뒤 수리 질문을 실행해 줘. 기본 프로필의 .env와 auth.json은 읽지 마. 세션 DB는 지우지 마.
+저장소: https://github.com/reallygood83/hermes-shorts-factory
+git pull
+python3 scripts/repair_chat.py
+```
+
+질문은 두 갈래입니다. 기본 Hermes 대화 모델을 그대로 쓰거나, 다른 대화 모델 이름을 입력합니다. 음성 키는 그 다음이고, 빈 칸은 기존 값을 유지합니다. 화면이 없으면 `--headless`로 같은 질문을 합니다. 키는 명령줄에 넣지 않습니다.
+
+Gemini 음성은 선택입니다. 모델은 `gemini-3.8-flash-tts`이고 한국어는 그 모델의 언어 표에 있습니다. 효과음과 BGM은 Gemini가 만들지 않습니다. 로컬 원본 톤만 사용합니다. xAI 내레이션은 그대로 둘 수 있습니다.
+
 ## Hermes에 붙여넣을 문장
 
 ```text

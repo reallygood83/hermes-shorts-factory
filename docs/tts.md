@@ -2,7 +2,9 @@
 
 조사일 기준 문서만 적는다. 개발 중 유료 호출은 하지 않았다. 발음 품질은 확인하지 않았다.
 
-선택한 제공자: **xAI Grok TTS**. Hermes에 `tts.provider: xai`가 있고, 공개 HTTP API가 있으며, 한국어 코드 `ko`가 지원 목록에 있다. Claude와 Codex는 음성 제품이 아니다.
+내레이션 기본값은 여전히 **xAI Grok TTS**입니다. 온보딩에서 Gemini 음성을 고르면 `gemini-3.8-flash-tts` (`POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash-tts:generateContent`, 보이스 `Kore`)만 사용합니다. 이 모델의 공식 언어 표에 Korean이 있습니다. Hermes 0.23의 내장 기본값 `gemini-2.5-flash-preview-tts`와 `gemini-3.1-flash-tts-preview`는 이름을 직접 고른 경우에만 허용하고, 실패해도 다른 모델로 바꾸지 않습니다. Gemini 음성 API는 대사를 읽습니다. 효과음·음악 엔드포인트는 없어 그 선택은 막히고, 배경은 로컬 원본 톤입니다.
+
+채팅 모델은 음성 모델과 다릅니다. 비어 있으면 Desktop이 `storage_unavailable`를 냅니다. 수리 질문이 기본 Hermes `config.yaml`의 대화 모델을 쓰게 하거나, 사용자가 대화 모델 이름을 입력하게 합니다. `api_key`는 복사하지 않습니다.
 
 ## 능력 표
 

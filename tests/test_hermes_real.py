@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from shorts_factory.installer import repo_root
+from shorts_factory.installer import repo_root, run_install
 
 
 def _hermes_runs() -> bool:
@@ -161,6 +161,38 @@ class RealHermesInstallTests(unittest.TestCase):
             connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
             titles = [row[0] for row in connection.execute("SELECT title FROM sessions")]
             self.assertNotIn("Bot Chat", titles)
+
+    def test_default_model_repair_lets_cli_create_bot_chat(self) -> None:
+        run_install(repo_root(), self.home, apply=True, method="file", force_config=False)
+        (self.home / "config.yaml").write_text(
+            "model:\n  provider: gemini\n  default: gemini-3.8-flash\n  api_key: do-not-copy\n",
+            encoding="utf-8",
+        )
+        profile = self.home / "profiles" / "shorts-factory"
+        (profile / "memories").mkdir(exist_ok=True)
+        (profile / "memories" / "keep.txt").write_text("stay\n", encoding="utf-8")
+        ensure = self._run(["hermes", "gateway", "ensure", "--json", "--timeout", "40"])
+        self.assertEqual(ensure.returncode, 0, ensure.stdout + ensure.stderr)
+        blocked = self._run(
+            ["hermes", "-p", "shorts-factory", "chat", "--cli", "-c", "Bot Chat", "--create-if-missing"]
+        )
+        self.assertNotEqual(blocked.returncode, 0)
+        repair = self._run(
+            [sys.executable, "-m", "shorts_factory.repair", "--use-default-model", "--hermes-home", str(self.home)]
+        )
+        self.assertEqual(repair.returncode, 0, repair.stdout + repair.stderr)
+        written = (profile / "config.yaml").read_text(encoding="utf-8")
+        self.assertIn("default: gemini-3.8-flash", written)
+        self.assertNotIn("do-not-copy", written)
+        self._run(["hermes", "-p", "shorts-factory", "chat", "--cli", "-c", "Bot Chat", "--create-if-missing"])
+        database = profile / "state.db"
+        self.assertTrue(database.is_file())
+        connection = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+        rows = connection.execute("SELECT title, IFNULL(message_count, 0), IFNULL(api_call_count, 0) FROM sessions").fetchall()
+        self.assertIn(("Bot Chat", 0, 0), rows)
+        self.assertEqual((profile / "memories" / "keep.txt").read_text(encoding="utf-8"), "stay\n")
+        self.assertEqual((self.home / "SOUL.md").read_text(encoding="utf-8"), "PRIMARY SOUL\n")
+        self.assertNotIn("do-not-copy", repair.stdout)
 
 
 if __name__ == "__main__":
