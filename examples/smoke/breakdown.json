@@ -1,0 +1,12 @@
+{
+  "duration": 6,
+  "structure_notes": "예시 구조다. rea-video를 실행해서 만든 파일이 아니다.",
+  "scenes": [
+    {"start": 0, "end": 3, "role": "hook"},
+    {"start": 3, "end": 6, "role": "payoff"}
+  ],
+  "shots": [
+    {"id": 1},
+    {"id": 2}
+  ]
+}

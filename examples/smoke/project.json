@@ -1,0 +1,21 @@
+{
+  "topic": "아침 물 한 잔이 집중을 깨우는 순간",
+  "reference_url": null,
+  "aspect": "9:16",
+  "width": 1080,
+  "height": 1920,
+  "duration_seconds": 6,
+  "hook_seconds": 3,
+  "language": "ko",
+  "audience": "general",
+  "tts": {
+    "provider": "offline",
+    "model": "offline-placeholder",
+    "voice_id": "offline-tone",
+    "language": "ko"
+  },
+  "narration_subject": "original_fictional",
+  "real_person_likeness": false,
+  "media_reuse": "structure_only",
+  "rea_video_breakdown": "breakdown.json"
+}
